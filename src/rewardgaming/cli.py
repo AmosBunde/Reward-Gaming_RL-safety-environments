@@ -84,6 +84,25 @@ def cmd_run(args) -> None:
                    limit=args.limit)
 
 
+def cmd_summarise(args) -> None:
+    """Compute every reported number and the outcome of each hypothesis."""
+    from .summarise import summarise
+
+    summary = summarise(args.runs, args.out)
+    print(f"wrote {args.out} from {summary['meta']['runs']} runs")
+    for name, h in summary["hypotheses"].items():
+        print(f"  {name}: {h['outcome']:9s} {h['parts']}")
+
+
+def cmd_figures(args) -> None:
+    """Draw the figures into docs/img/."""
+    from .figures import fig_environments, make_all
+
+    paths = [fig_environments()] if args.only_environments else make_all(args.summary)
+    for path in paths:
+        print(f"wrote {path}")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="rewardgaming", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -120,6 +139,17 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--limit", type=int, default=None, help="run at most this many runs")
     p.add_argument("--out", default="results/runs")
     p.set_defaults(func=cmd_run)
+
+    p = sub.add_parser("summarise", help="write results/summary.json and results/per_run.csv")
+    p.add_argument("--runs", default="results/runs")
+    p.add_argument("--out", default="results/summary.json")
+    p.set_defaults(func=cmd_summarise)
+
+    p = sub.add_parser("figures", help="draw docs/img/*.png")
+    p.add_argument("--summary", default="results/summary.json")
+    p.add_argument("--only-environments", action="store_true",
+                   help="draw only the figure that needs no results")
+    p.set_defaults(func=cmd_figures)
     return parser
 
 
