@@ -17,7 +17,8 @@ from pathlib import Path
 from .envs import FAMILIES, EnvConfig
 from .ppo import PPOConfig
 
-SEEDS = (0, 1, 2, 3, 4)
+SEEDS = (0, 1, 2, 3, 4)        # E2 gamers, controls and reference agents
+SEEDS_SECONDARY = (0, 1, 2)    # E1, E3 and the no-cue gamers (see PLAN.md, Amendments)
 GAP_BINS = ((-4, -3), (-2, -1), (0, 1), (2, 3), (4, 5))  # E1
 GAP_MAX = -2                                              # E2 and E3
 AUDIT_RATES = (0.1, 0.3, 0.5)                             # E3
@@ -69,8 +70,8 @@ def matrix(experiment: str) -> list[RunSpec]:
         return matrix("e2") + matrix("e3") + matrix("e1")
     runs: list[RunSpec] = []
     if experiment == "e1":
-        for lo, hi in GAP_BINS:
-            for s in SEEDS:
+        for s in SEEDS_SECONDARY:
+            for lo, hi in GAP_BINS:
                 runs.append(RunSpec(f"e1_gap{lo:+d}to{hi:+d}_s{s}", "e1", f"gap{lo:+d}to{hi:+d}",
                                     s, gap_min=lo, gap_max=hi))
     elif experiment == "e2":
@@ -80,11 +81,12 @@ def matrix(experiment: str) -> list[RunSpec]:
                 runs.append(RunSpec(f"e2_gamer_hold-{held}_s{s}", "e2", "gamer", **common))
                 runs.append(RunSpec(f"e2_control_hold-{held}_s{s}", "e2", "control",
                                     exploit_prob=0.0, **common))
-                runs.append(RunSpec(f"e2_nocue_hold-{held}_s{s}", "e2", "nocue",
-                                    role_cue=False, **common))
+                if s in SEEDS_SECONDARY:
+                    runs.append(RunSpec(f"e2_nocue_hold-{held}_s{s}", "e2", "nocue",
+                                        role_cue=False, **common))
             runs.append(RunSpec(f"e2_reference_s{s}", "e2", "reference", s))
     elif experiment == "e3":
-        for s in SEEDS:
+        for s in SEEDS_SECONDARY:
             for held in FAMILIES:
                 for rate in AUDIT_RATES:
                     runs.append(RunSpec(f"e3_audit{rate}_hold-{held}_s{s}", "e3", f"audit{rate}",
