@@ -184,3 +184,11 @@ The decision used run times only. Consequences:
 - H2e compares the no-cue gamers with seeds 0 to 2 of the ordinary gamers.
 
 The criteria for every hypothesis are unchanged.
+
+### A2. Exploratory breakdowns added after the results
+
+Added on 20 November 2026, after the matrix had finished and I had seen the summary. Two
+descriptive breakdowns of E3 were added to `summary.json`: the gaming rate on each
+training family separately at each audit rate, and the mean return each agent ended
+training with. They are used in the report to describe what happened under auditing.
+They test nothing and change no hypothesis or criterion.
