@@ -47,6 +47,43 @@ def cmd_baselines(args) -> None:
             json.dump(out, fh, indent=1)
 
 
+def _print_eval(evaluation: dict) -> None:
+    for condition, by_family in evaluation.items():
+        print(condition)
+        for family, m in by_family.items():
+            print(f"  {family:10s} reward {m['reward_rate']:.3f}  intended "
+                  f"{m['intended_rate']:.3f}  gaming {m['gaming_rate']:.3f}  "
+                  f"touch {m['touch_rate']:.3f}")
+
+
+def cmd_train(args) -> None:
+    """Train one PPO policy and print its evaluation on test layouts."""
+    from .experiments import RunSpec, run_one
+    from .ppo import PPOConfig
+
+    families = tuple(f for f in FAMILIES if f != args.held_out)
+    spec = RunSpec(
+        run_id=args.name, experiment="single", condition=args.condition, seed=args.seed,
+        held_out=args.held_out, gap_max=args.gap_max, train_families=families,
+        exploit_prob=0.0 if args.condition == "control" else 1.0,
+        audit_rate=args.audit_rate, role_cue=not args.no_role_cue)
+    result = run_one(spec, PPOConfig(total_steps=args.steps), out_dir=args.out)
+    print(f"trained {args.steps:,} steps in {result['train_seconds']:.0f} s; "
+          f"wrote {args.out}/{args.name}.json")
+    _print_eval(result["eval"])
+
+
+def cmd_run(args) -> None:
+    """Run the experiment matrix, skipping runs that already have a result file."""
+    from .experiments import run_matrix
+    from .ppo import PPOConfig
+
+    ppo = PPOConfig(total_steps=args.steps) if args.steps else PPOConfig()
+    for experiment in args.experiment:
+        run_matrix(experiment, workers=args.workers, ppo=ppo, out_dir=args.out,
+                   limit=args.limit)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="rewardgaming", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -63,6 +100,26 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", default=None)
     p.set_defaults(func=cmd_baselines)
+
+    p = sub.add_parser("train", help="train and evaluate one PPO policy")
+    p.add_argument("--condition", choices=("gamer", "control"), default="gamer")
+    p.add_argument("--held-out", choices=FAMILIES, default=None)
+    p.add_argument("--audit-rate", type=float, default=0.0)
+    p.add_argument("--gap-max", type=int, default=-2)
+    p.add_argument("--no-role-cue", action="store_true")
+    p.add_argument("--steps", type=int, default=1_200_000)
+    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--name", default="single")
+    p.add_argument("--out", default="results/single")
+    p.set_defaults(func=cmd_train)
+
+    p = sub.add_parser("run", help="run the experiment matrix (resumable)")
+    p.add_argument("--experiment", nargs="+", choices=("e1", "e2", "e3", "all"), default=["all"])
+    p.add_argument("--workers", type=int, default=3)
+    p.add_argument("--steps", type=int, default=None, help="override training length")
+    p.add_argument("--limit", type=int, default=None, help="run at most this many runs")
+    p.add_argument("--out", default="results/runs")
+    p.set_defaults(func=cmd_run)
     return parser
 
 
