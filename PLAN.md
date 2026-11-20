@@ -165,8 +165,9 @@ controlled measurement with exploit types held out, and the code.
 
 ### A1. Three seeds instead of five for E1, E3 and the no-cue gamers
 
-Made on 20 November 2026, about six minutes into the matrix, after 12 of the 150 runs
-had finished. All 12 were E2 runs with seed 0; no E1 or E3 run had started.
+Made on 20 November 2026, about six minutes into the matrix. When the runner was stopped
+to apply it, 15 of the 150 runs had finished: seed 0 of every E2 cell (13 runs) and seed 1
+of the gamer and the control for the `tamper` fold. No E1 or E3 run had started.
 
 The matrix was sized on pilot runs that took about 45 seconds each. Other jobs on the
 same machine slowed the real runs to 65 to 80 seconds, which put the full matrix at over
