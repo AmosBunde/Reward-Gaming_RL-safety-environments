@@ -54,10 +54,10 @@ def test_ppo_learns_the_easiest_exploit():
 
 def test_matrix_sizes_and_unique_ids():
     e1, e2, e3 = matrix("e1"), matrix("e2"), matrix("e3")
-    assert len(e1) == 5 * len(GAP_BINS) == 25
-    assert len(e2) == 65 and len(e3) == 4 * 5 * len(AUDIT_RATES) == 60
+    assert len(e1) == 3 * len(GAP_BINS) == 15
+    assert len(e2) == 40 + 5 + 12 and len(e3) == 4 * 3 * len(AUDIT_RATES) == 36
     ids = [s.run_id for s in matrix("all")]
-    assert len(ids) == len(set(ids)) == 150
+    assert len(ids) == len(set(ids)) == 108
     for spec in e2 + e3:
         if spec.held_out:
             assert spec.held_out not in spec.train_families and len(spec.train_families) == 3

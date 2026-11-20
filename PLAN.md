@@ -163,4 +163,23 @@ controlled measurement with exploit types held out, and the code.
 
 ## Amendments
 
-None yet.
+### A1. Three seeds instead of five for E1, E3 and the no-cue gamers
+
+Made on 20 November 2026, about six minutes into the matrix, after 12 of the 150 runs
+had finished. All 12 were E2 runs with seed 0; no E1 or E3 run had started.
+
+The matrix was sized on pilot runs that took about 45 seconds each. Other jobs on the
+same machine slowed the real runs to 65 to 80 seconds, which put the full matrix at over
+an hour against a budget of about 45 minutes on three workers. I cut seeds 3 and 4 from
+E1, from E3 and from the no-cue gamers of E2. The gamers, controls and reference agents
+of E2, which carry the main test, keep five seeds. The matrix is now 108 runs: 15 for E1,
+57 for E2 and 36 for E3.
+
+The decision used run times only. Consequences:
+
+- Intervals for E1, E3 and H2e rest on three seeds per cell and are correspondingly loose.
+- E3 compares audited agents with the unaudited gamers and the controls of E2. Those
+  comparisons use seeds 0 to 2 of the E2 runs, so that they stay paired by seed.
+- H2e compares the no-cue gamers with seeds 0 to 2 of the ordinary gamers.
+
+The criteria for every hypothesis are unchanged.
